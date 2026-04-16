@@ -73,7 +73,8 @@
     }
 
     .primary-button,
-    .secondary-button {
+    .secondary-button,
+    .danger-button {
       width: 100%;
       padding: 14px 16px;
       border: none;
@@ -94,8 +95,15 @@
       border: 1px solid #d1d5db;
     }
 
+    .danger-button {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
     .primary-button:hover,
-    .secondary-button:hover {
+    .secondary-button:hover,
+    .danger-button:hover {
       opacity: 0.92;
     }
 
@@ -315,6 +323,7 @@
     <div class="action-area">
       <button class="primary-button" id="addButton">＋ 支払いを追加</button>
       <button class="secondary-button" id="settleAllButton">未払いを全件精算済みにする</button>
+      <button class="danger-button" id="deleteSettledButton">精算済みを一括削除</button>
     </div>
 
     <div class="section-title" id="listTitle">未払い一覧</div>
@@ -372,7 +381,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "settlement_memo_app_v4";
+    const STORAGE_KEY = "settlement_memo_app_v5";
 
     let payments = loadPayments();
     let showAll = false;
@@ -389,6 +398,7 @@
 
     const addButton = document.getElementById("addButton");
     const settleAllButton = document.getElementById("settleAllButton");
+    const deleteSettledButton = document.getElementById("deleteSettledButton");
     const saveButton = document.getElementById("saveButton");
     const cancelButton = document.getElementById("cancelButton");
 
@@ -636,6 +646,22 @@
       render();
     }
 
+    function deleteSettledPayments() {
+      const settledCount = payments.filter(item => item.status === "settled").length;
+
+      if (settledCount === 0) {
+        alert("削除できる精算済みデータはありません。");
+        return;
+      }
+
+      const ok = confirm(`精算済み ${settledCount}件 を一括削除しますか？`);
+      if (!ok) return;
+
+      payments = payments.filter(item => item.status !== "settled");
+      savePayments();
+      render();
+    }
+
     function editPayment(id) {
       const item = payments.find(payment => payment.id === id);
       if (!item) return;
@@ -660,6 +686,7 @@
 
     addButton.addEventListener("click", () => openModal());
     settleAllButton.addEventListener("click", settleAllPayments);
+    deleteSettledButton.addEventListener("click", deleteSettledPayments);
     saveButton.addEventListener("click", saveForm);
     cancelButton.addEventListener("click", closeModal);
 
