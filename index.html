@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>清算メモアプリ</title>
+  <title>精算メモアプリ</title>
   <style>
     * {
       box-sizing: border-box;
@@ -303,18 +303,18 @@
 </head>
 <body>
   <div class="app">
-    <div class="header">清算メモアプリ</div>
+    <div class="header">精算メモアプリ</div>
 
     <div class="summary">
-      <div class="summary-label">現在の清算額</div>
-      <div class="summary-direction" id="summaryDirection">清算なし</div>
+      <div class="summary-label">現在の精算額</div>
+      <div class="summary-direction" id="summaryDirection">精算なし</div>
       <div class="summary-amount" id="summaryAmount">¥0</div>
       <div class="summary-count" id="summaryCount">未払い 0件</div>
     </div>
 
     <div class="action-area">
       <button class="primary-button" id="addButton">＋ 支払いを追加</button>
-      <button class="secondary-button" id="settleAllButton">未払いを全件清算済みにする</button>
+      <button class="secondary-button" id="settleAllButton">未払いを全件精算済みにする</button>
     </div>
 
     <div class="section-title" id="listTitle">未払い一覧</div>
@@ -322,7 +322,7 @@
 
     <div class="filter-area">
       <button class="filter-button active" id="showUnpaidBtn">未払いだけ表示</button>
-      <button class="filter-button" id="showAllBtn">清算済みも見る</button>
+      <button class="filter-button" id="showAllBtn">精算済みも見る</button>
     </div>
   </div>
 
@@ -358,7 +358,7 @@
             <label for="status">状態</label>
             <select id="status" required>
               <option value="unpaid">未払い</option>
-              <option value="settled">清算済み</option>
+              <option value="settled">精算済み</option>
             </select>
           </div>
         </form>
@@ -372,7 +372,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "settlement_memo_app_v2";
+    const STORAGE_KEY = "settlement_memo_app_v4";
 
     let payments = loadPayments();
     let showAll = false;
@@ -404,10 +404,10 @@
     function loadPayments() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : sampleData();
+        return raw ? JSON.parse(raw) : [];
       } catch (error) {
         console.error("データ読み込み失敗", error);
-        return sampleData();
+        return [];
       }
     }
 
@@ -415,49 +415,11 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payments));
     }
 
-    function sampleData() {
-      return [
-        {
-          id: createId(),
-          date: getTodayOffset(-2),
-          title: "映画",
-          amount: 4000,
-          paidBy: "boyfriend",
-          status: "unpaid"
-        },
-        {
-          id: createId(),
-          date: getTodayOffset(-1),
-          title: "カフェ",
-          amount: 1000,
-          paidBy: "girlfriend",
-          status: "unpaid"
-        },
-        {
-          id: createId(),
-          date: getTodayOffset(0),
-          title: "ランチ",
-          amount: 2000,
-          paidBy: "boyfriend",
-          status: "unpaid"
-        }
-      ];
-    }
-
     function createId() {
       if (window.crypto && crypto.randomUUID) {
         return crypto.randomUUID();
       }
       return "id-" + Date.now() + "-" + Math.random().toString(16).slice(2);
-    }
-
-    function getTodayOffset(offsetDays) {
-      const date = new Date();
-      date.setDate(date.getDate() + offsetDays);
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, "0");
-      const d = String(date.getDate()).padStart(2, "0");
-      return `${y}-${m}-${d}`;
     }
 
     function openModal(editItem = null) {
@@ -523,7 +485,7 @@
       const boyfriendBalance = boyfriendPaid - half;
       const girlfriendBalance = girlfriendPaid - half;
 
-      let direction = "清算なし";
+      let direction = "精算なし";
       let amount = 0;
 
       if (boyfriendBalance > 0) {
@@ -564,7 +526,7 @@
         <div class="item-card">
           <div class="item-top">
             <div class="item-left">
-              <div class="item-date">${formatDate(item.date)} ${item.status === "settled" ? "・ 清算済み" : ""}</div>
+              <div class="item-date">${formatDate(item.date)} ${item.status === "settled" ? "・ 精算済み" : ""}</div>
               <div class="item-title">${escapeHtml(item.title)}</div>
             </div>
             <div class="item-amount">${formatCurrency(item.amount)}</div>
@@ -572,7 +534,7 @@
           <div class="item-meta">支払った人: ${getPaidByLabel(item.paidBy)}</div>
           <div class="item-actions">
             ${item.status === "unpaid"
-              ? `<button class="small-button btn-settle" onclick="settlePayment('${item.id}')">清算済みにする</button>`
+              ? `<button class="small-button btn-settle" onclick="settlePayment('${item.id}')">精算済みにする</button>`
               : ""
             }
             <button class="small-button btn-edit" onclick="editPayment('${item.id}')">編集</button>
@@ -663,7 +625,7 @@
         return;
       }
 
-      const ok = confirm(`未払い ${unpaidCount}件 を全件清算済みにしますか？`);
+      const ok = confirm(`未払い ${unpaidCount}件 を全件精算済みにしますか？`);
       if (!ok) return;
 
       payments = payments.map(item =>
