@@ -64,6 +64,13 @@
       color: #666;
     }
 
+    .summary-total {
+      font-size: 14px;
+      color: #444;
+      margin-top: 6px;
+      font-weight: 700;
+    }
+
     .action-area {
       padding: 16px;
       border-bottom: 1px solid #e5e7eb;
@@ -318,6 +325,7 @@
       <div class="summary-direction" id="summaryDirection">精算なし</div>
       <div class="summary-amount" id="summaryAmount">¥0</div>
       <div class="summary-count" id="summaryCount">未払い 0件</div>
+      <div class="summary-total" id="summaryTotal">未払い合計 ¥0</div>
     </div>
 
     <div class="action-area">
@@ -381,7 +389,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "settlement_memo_app_v5";
+    const STORAGE_KEY = "settlement_memo_app_v6";
 
     let payments = loadPayments();
     let showAll = false;
@@ -391,6 +399,7 @@
     const summaryDirection = document.getElementById("summaryDirection");
     const summaryAmount = document.getElementById("summaryAmount");
     const summaryCount = document.getElementById("summaryCount");
+    const summaryTotal = document.getElementById("summaryTotal");
     const listTitle = document.getElementById("listTitle");
 
     const paymentModal = document.getElementById("paymentModal");
@@ -508,6 +517,7 @@
 
       return {
         unpaidCount: unpaid.length,
+        total,
         direction,
         amount: Math.round(amount)
       };
@@ -518,6 +528,7 @@
       summaryDirection.textContent = result.direction;
       summaryAmount.textContent = formatCurrency(result.amount);
       summaryCount.textContent = `未払い ${result.unpaidCount}件`;
+      summaryTotal.textContent = `未払い合計 ${formatCurrency(result.total)}`;
     }
 
     function renderList() {
